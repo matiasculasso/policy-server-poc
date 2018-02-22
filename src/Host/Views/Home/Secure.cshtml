@@ -1,0 +1,79 @@
+﻿@{
+    ViewData["Title"] = "Persons Home";
+}
+@model PolicyServer.Client.PolicyResult
+<div class="col-lg-6">
+    <h2>Current User Claims</h2>
+    @foreach (var id in User.Identities)
+    {
+        <h3>Scheme: @id.AuthenticationType</h3>
+        <dl>
+            @foreach (var claim in id.Claims)
+            {
+                <dt>@claim.Type</dt>
+                <dd>@claim.Value</dd>
+            }
+        </dl>
+    }
+    @if (Model != null)
+    {
+        <h2>Policy Results</h2>
+        @if (Model.Roles.Any())
+        {
+            <h3>Roles</h3>
+            <ul>
+                @foreach (var role in Model.Roles)
+                {
+                    <li>@role</li>
+                }
+            </ul>
+        }
+
+        @if (Model.Permissions.Any())
+        {
+            <h3>Permission</h3>
+            <ul>
+                @foreach (var perm in Model.Permissions)
+                {
+                    <li>@perm</li>
+                }
+            </ul>
+        }
+    }
+</div>
+<div class="col-lg-6">
+    <h2>Persons Service Operations</h2>
+    <h3>Read</h3>
+    <p>
+        <h4><a href="@Url.RouteUrl("personsGet", null)">Get All Persons</a></h4>
+    </p>
+    <p>
+        <h4><a href="@Url.RouteUrl("personsGetById", new { personId = 1 })">Get Person 1 - Mati</a></h4>
+    </p>
+    <p>
+        <h4><a href="@Url.RouteUrl("personsGetById", new { personId = 2 })">Get Person 2 - Seba </a></h4>
+    </p>
+    <p>
+        <h4><a href="@Url.RouteUrl("personsGetById", new { personId = 3 })">Get Person 3 - Andres</a></h4>
+    </p>
+    <h3>Write</h3>
+    <p>
+        <h4><a href="@Url.RouteUrl("personsWrite", new { personId = 1 })">Write Person 1 - Mati </a></h4>
+    </p>
+    <p>
+        <h4><a href="@Url.RouteUrl("personsWrite", new { personId = 2 })">Write Person 2 - Seba </a></h4>
+    </p>
+    <p>
+        <h4><a href="@Url.RouteUrl("personsWrite", new { personId = 3 })">Write Person 3 - Andres </a></h4>
+    </p>
+    <h3>Delete</h3>
+    <p>
+        <h4><a href="@Url.RouteUrl("personsDelete", new { personId = 1 })">Delete Person 1 - Mati </a></h4>
+    </p>
+    <p>
+        <h4><a href="@Url.RouteUrl("personsDelete", new { personId = 2 })">Delete Person 2 - Seba</a></h4>
+    </p>
+    <h4><a href="@Url.RouteUrl("personsDelete", new { personId = 3 })">Delete Person 3 - Andres </a></h4>
+</div>
+
+
