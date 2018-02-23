@@ -17,9 +17,9 @@ namespace Host.Controllers
 			_authz = authz;
 		}
 
-		[Authorize(Roles = "supervisor")]				
+		// [Authorize(Roles = "supervisor")]				
 		// [Authorize(Policy = "persons.getAll")]
-		// [Authorize(Policy = "persons.getAll", Roles = "supervisor")]
+		// [Authorize(Policy = "persons.getAll", Roles = ["supervisor"])]
 		[Route("persons", Name = "personsGet")]
 		public async Task<IActionResult> Get()
 		{
@@ -30,19 +30,28 @@ namespace Host.Controllers
 		[Authorize(Policy = "persons.getById")]
 		[Route("persons/{personId}", Name = "personsGetById")]
 		public async Task<IActionResult> Get(string personId)
-		{
-			var sameLocationRequirement = new SameLocationRequirement { Location = "desMoines"};
-			var sameLocationAllowed = await _authz.AuthorizeAsync(User, null, sameLocationRequirement);
-			
+		{			
+			// check current user can get our own data
 			var currentUserRequirement = new CurrentUserRequirement { UserId = personId };
 			var currentUserAllowed = await _authz.AuthorizeAsync(User, null, currentUserRequirement);
-			
-			if (!currentUserAllowed.Succeeded || !sameLocationAllowed.Succeeded)
+
+			if (currentUserAllowed.Succeeded)
 			{
-				return Forbid();
+				return View("success");
 			}
 
-			return View("success");
+			// if the loggued user has the same location than the requested user
+			// here we could fetch the location  for the persionId and for logged user
+
+			var sameLocationRequirement = new SameLocationRequirement { Location = "desMoines" };
+			var sameLocationAllowed = await _authz.AuthorizeAsync(User, null, sameLocationRequirement);
+
+			if (sameLocationAllowed.Succeeded)
+			{
+				return View("success");
+			}
+
+			return Forbid();			
 		}
 
 		[Authorize(Policy="persons.write")]
@@ -55,8 +64,8 @@ namespace Host.Controllers
 				return View("success");
 			}
 
-			var teamRequirement = new TeamMembersRequirement { TeamName = "TeamOne" };
-			// var teamRequirement = new TeamMembersRequirement { TeamName = "TeamTwo" };
+			var teamRequirement = new TeamMembersRequirement { TeamName = "teamOne" };
+			// var teamRequirement = new TeamMembersRequirement { TeamName = "teamTwo" };
 			var teamAllowed = await _authz.AuthorizeAsync(User, null, teamRequirement);
 
 			if (!teamAllowed.Succeeded)

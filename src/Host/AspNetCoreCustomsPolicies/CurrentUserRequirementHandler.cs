@@ -32,28 +32,7 @@ namespace Host.AspNetCoreCustomsPolicies
 			{
 				context.Succeed(requirement);
 				return;
-			}
-
-			// checks if the logged user has the manager
-			// TODO --> Get user information
-			var userBelongsToTeam = "teamOne";
-			var userBelongsToOffice = "desMonies";
-
-			if (await _client.IsInRoleAsync(user, "manager"))
-			{
-				if (user.HasClaim(x => x.Type == "teams" && x.Value.Contains(userBelongsToTeam)))
-				{
-					context.Succeed(requirement);
-					return;
-				}
-
-
-				if (user.HasClaim(x => x.Type == "location" && x.Value.Contains(userBelongsToOffice)))
-				{
-					context.Succeed(requirement);
-					return;
-				}
-			}
+			}			
 		}
 	}
 }

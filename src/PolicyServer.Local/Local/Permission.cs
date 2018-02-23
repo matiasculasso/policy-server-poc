@@ -12,13 +12,19 @@ namespace PolicyServer.Local
     /// </summary>
     public class Permission
     {
-        /// <summary>
-        /// Gets the name.
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        public string Name { get; set; }
+
+		/// <summary>
+		/// Context allowed
+		/// </summary>
+		public string Context { get; set; }
+
+		/// <summary>
+		/// Gets the name.
+		/// </summary>
+		/// <value>
+		/// The name.
+		/// </value>
+		public string Name { get; set; }
 
         /// <summary>
         /// Gets the roles.

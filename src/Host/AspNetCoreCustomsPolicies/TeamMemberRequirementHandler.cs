@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using PolicyServer.Client;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Host.AspNetCoreCustomsPolicies
 {
@@ -16,7 +17,11 @@ namespace Host.AspNetCoreCustomsPolicies
 
 		protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, TeamMembersRequirement requirement)
 		{
+			
 			var user = context.User;
+
+			// here we can fetch user data, like current team
+			// userService.get(id).currentTeam
 
 			// supervisor has access to perform action over all records
 			if (await _client.IsInRoleAsync(user, "supervisor"))
@@ -31,7 +36,8 @@ namespace Host.AspNetCoreCustomsPolicies
 				return;
 			}
 
-			if (user.HasClaim(x => x.Type == "team" && x.Value.Contains(requirement.TeamName)))
+			//managers have access only to his teams
+			if (user.HasClaim(x => x.Type == "teams" && x.Value.Contains(requirement.TeamName)))
 			{
 				context.Succeed(requirement);
 				return;

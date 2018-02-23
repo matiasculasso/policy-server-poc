@@ -20,5 +20,10 @@ namespace Microsoft.AspNetCore.Builder
         {
             return app.UseMiddleware<PolicyServerMiddleware>();
         }
-    }
+
+		public static IApplicationBuilder UseRequestPathTransformationToContext(this IApplicationBuilder app)
+		{
+			return app.UseMiddleware<RequestPathTransformationToContextMiddleware>();
+		}
+	}
 }

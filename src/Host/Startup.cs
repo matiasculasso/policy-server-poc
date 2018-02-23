@@ -37,12 +37,23 @@ namespace Host
             services.AddAuthentication("Cookies")
                 .AddCookie("Cookies");
 
-            // this sets up the PolicyServer client library and policy provider - configuration is loaded from appsettings.json
-            services.AddPolicyServerClient(Configuration.GetSection("Policy"))
+			// adding this policy I will able to check if this claim is in the token (provided by Identity)
+			services.AddAuthorization(options =>
+			{
+				options.AddPolicy("Tenant", policy => policy.RequireClaim("tenant", "I07", "I08"));
+
+				options.AddPolicy("Client", policy => policy.RequireClaim("client", "enspire", "thinslice"));
+			});
+
+
+			// this sets up the PolicyServer client library and policy provider - configuration is loaded from appsettings.json
+			services.AddPolicyServerClient(Configuration.GetSection("Policy"))
                 .AddAuthorizationPermissionPolicies();
 
             // this adds the necessary handler for our custom medication requirement
 			services.AddTransient<IAuthorizationHandler, CurrentUserRequirementHandler>();
+			services.AddTransient<IAuthorizationHandler, SameLocationRequirementHandler>();
+			services.AddTransient<IAuthorizationHandler, TeamMemberRequirementHandler>();
 		}
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -50,12 +61,14 @@ namespace Host
             app.UseDeveloperExceptionPage();
             app.UseAuthentication();
 
-            // add this middleware to make roles and permissions available as claims
-            // this is mainly useful for using the classic [Authorize(Roles="foo")] and IsInRole functionality
-            // this is not needed if you use the client library directly or the new policy-based authorization framework in ASP.NET Core
-            app.UsePolicyServerClaimsTransformation();
+			// add this middleware to make roles and permissions available as claims
+			// this is mainly useful for using the classic [Authorize(Roles="foo")] and IsInRole functionality
+			// this is not needed if you use the client library directly or the new policy-based authorization framework in ASP.NET Core
+			app.UsePolicyServerClaimsTransformation();
 
-            app.UseStaticFiles();
+			app.UseRequestPathTransformationToContext();
+
+			app.UseStaticFiles();
             app.UseMvcWithDefaultRoute();
         }
     }

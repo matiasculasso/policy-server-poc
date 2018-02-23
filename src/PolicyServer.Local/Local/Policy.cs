@@ -35,13 +35,18 @@ namespace PolicyServer.Local
         {
             if (user == null) throw new ArgumentNullException(nameof(user));
 
-            var roles = Roles.Where(x=> x.Evaluate(user)).Select(x => x.Name).ToArray();
-            var permissions = Permissions.Where(x => x.Evaluate(roles)).Select(x => x.Name).ToArray();
+			var roles = Roles.Where(x=> x.Evaluate(user)).Select(x => x.Name);
 
-            var result = new PolicyResult()
+			var userContext = user.Claims.FirstOrDefault(x => x.Type == "context");
+
+			var permissions = Permissions
+				.Where(x => x.Evaluate(roles) && userContext?.Value == x.Context)
+				.Select(x => x.Name);
+
+			var result = new PolicyResult()
             {
-                Roles = roles.Distinct(),
-                Permissions = permissions.Distinct()
+                Roles = roles.Distinct().ToArray(),
+                Permissions = permissions.Distinct().ToArray()
             };
 
             return Task.FromResult(result);
