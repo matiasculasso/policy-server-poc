@@ -18,20 +18,20 @@ namespace Host.Controllers
 		}
 
 		// [Authorize(Roles = "supervisor")]				
-		// [Authorize(Policy = "persons.getAll")]
-		// [Authorize(Policy = "persons.getAll", Roles = ["supervisor"])]
+		// [Authorize(Policy = "persons.read.all")]
+		// this is redundant, only for demo purposes 
+		[Authorize(Policy = "persons.read.all", Roles = "supervisor")] 
 		[Route("persons", Name = "personsGet")]
 		public async Task<IActionResult> Get()
 		{
-			var result = await _client.EvaluateAsync(User);
 			return View("success");
 		}
 
-		[Authorize(Policy = "persons.getById")]
+		[Authorize(Policy = "persons.read.mine")]
 		[Route("persons/{personId}", Name = "personsGetById")]
 		public async Task<IActionResult> Get(string personId)
-		{			
-			// check current user can get our own data
+		{
+			// checks if the requested user is the same than the logged user
 			var currentUserRequirement = new CurrentUserRequirement { UserId = personId };
 			var currentUserAllowed = await _authz.AuthorizeAsync(User, null, currentUserRequirement);
 
@@ -40,9 +40,8 @@ namespace Host.Controllers
 				return View("success");
 			}
 
-			// if the loggued user has the same location than the requested user
-			// here we could fetch the location  for the persionId and for logged user
-
+			// checks if the loggued user has the same location than the requested user.
+			// here we could fetch the location  for the persionId and for logged user.
 			var sameLocationRequirement = new SameLocationRequirement { Location = "desMoines" };
 			var sameLocationAllowed = await _authz.AuthorizeAsync(User, null, sameLocationRequirement);
 
@@ -54,18 +53,26 @@ namespace Host.Controllers
 			return Forbid();			
 		}
 
-		[Authorize(Policy="persons.write")]
+		[Authorize(Policy="persons.write.mine")]
 		[Route("persons/{personId}/edit", Name = "personsWrite")]
 		public async Task<IActionResult> Write(string personId)
 		{
-			// checking by role
+			// check by role
 			if (await _client.IsInRoleAsync(User, "supervisor"))
 			{
 				return View("success");
 			}
 
+			// checks if the requested user is the same than the logged user
+			var currentUserRequirement = new CurrentUserRequirement { UserId = personId };
+			var currentUserAllowed = await _authz.AuthorizeAsync(User, null, currentUserRequirement);
+
+			if (currentUserAllowed.Succeeded)
+			{
+				return View("success");
+			}
+
 			var teamRequirement = new TeamMembersRequirement { TeamName = "teamOne" };
-			// var teamRequirement = new TeamMembersRequirement { TeamName = "teamTwo" };
 			var teamAllowed = await _authz.AuthorizeAsync(User, null, teamRequirement);
 
 			if (!teamAllowed.Succeeded)
@@ -75,7 +82,8 @@ namespace Host.Controllers
 			return View("success");
 		}
 
-		[Authorize(Policy = "persons.delete")]
+		// this is equivalent to _client.HasPermissionAsync(User, "persons.delete");
+		// [Authorize(Policy = "persons.delete")] 
 		[Route("persons/{personId}/delete", Name = "personsDelete")]
 		public async Task<IActionResult> Delte(string personId)
 		{

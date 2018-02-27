@@ -35,11 +35,11 @@ namespace Host.Controllers
                     {
                         new Claim("sub", "1"),
                         new Claim("name", "Matias"),
-						new Claim("teams", "['teamOne']"),
-						new Claim("location", "desMoines"),
+						new Claim("teams", "teamOne"),
+						new Claim("location", "cordoba"),
 						new Claim("tenant","I07"),
 						new Claim("client","enspire"),
-						// new Claim("context","persons"),
+						new Claim("context","persons"),
 					};
                 }
                 else if (userName == "seba")
@@ -48,11 +48,11 @@ namespace Host.Controllers
                     {
                         new Claim("sub", "2"),
                         new Claim("name", "Sebastian"),
-						new Claim("teams", "['teamOne']"),
+						new Claim("teams", "teamOne"),
 						new Claim("location", "desMoines"),
 						new Claim("tenant","I07"),
 						new Claim("client","enspire"),
-						// new Claim("context","persons"),
+						new Claim("context","persons"),
 					};
                 }
 				else if (userName == "andres")
@@ -61,11 +61,11 @@ namespace Host.Controllers
 					{
 						new Claim("sub", "3"),
 						new Claim("name", "Andres"),
-						new Claim("teams", "['teamOne']"),
+						new Claim("teams", "teamOne"),
 						new Claim("location", "desMoines"),
 						new Claim("tenant","I07"),
 						new Claim("client","enspire"),
-						// new Claim("context","persons"),
+						new Claim("context","persons"),
 					};
 				}
 				else

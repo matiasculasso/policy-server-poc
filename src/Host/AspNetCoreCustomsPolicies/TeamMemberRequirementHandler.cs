@@ -15,13 +15,10 @@ namespace Host.AspNetCoreCustomsPolicies
 			_client = client;
 		}
 
-		protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, TeamMembersRequirement requirement)
-		{
-			
+		protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, 
+			TeamMembersRequirement requirement)
+		{			
 			var user = context.User;
-
-			// here we can fetch user data, like current team
-			// userService.get(id).currentTeam
 
 			// supervisor has access to perform action over all records
 			if (await _client.IsInRoleAsync(user, "supervisor"))
@@ -30,14 +27,17 @@ namespace Host.AspNetCoreCustomsPolicies
 				return;
 			}
 
-			//only managers are allowed
-			if (await _client.IsInRoleAsync(user, "manager") == false)
+			// we can also pass the permission as a parameter
+			if (await _client.HasPermissionAsync(user, "persons.read.team") == false)
 			{
 				return;
 			}
 
-			//managers have access only to his teams
-			if (user.HasClaim(x => x.Type == "teams" && x.Value.Contains(requirement.TeamName)))
+			// here we can fetch the team for the logged user consumming a service
+			// for demo purposes we are fetching the team from user claims
+			var team = user.Claims.FirstOrDefault(x => x.Type == "teams")?.Value;
+
+			if (team == requirement.TeamName)
 			{
 				context.Succeed(requirement);
 				return;
